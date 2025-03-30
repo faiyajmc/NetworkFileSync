@@ -23,8 +23,14 @@ namespace NetworkFileUpload
 
             main.InitializeFileTracking();
 
+            main.childfrm = new FileList(main.fileList);
+
+            panel1.Controls.Clear();
+            panel1.Controls.Add(main.childfrm);
+            main.childfrm.Show();
 
         }
+
 
         
 

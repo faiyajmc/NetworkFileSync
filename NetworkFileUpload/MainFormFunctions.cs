@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.IO;
+using NetworkFileUpload.Classes;
 
 namespace NetworkFileUpload
 {
@@ -19,6 +20,10 @@ namespace NetworkFileUpload
         public List<FileData> initFiles = null;
 
         public List<FileData> currFiles = null;
+
+        public List<FileDisplayData> fileList = null;
+
+        public FileList childfrm;
 
         private bool CheckPaths()
         {
@@ -38,13 +43,13 @@ namespace NetworkFileUpload
                 SettingsForm();
             }
 
-            if(initFiles == null)
+            if (initFiles == null)
             {
                 SetupWatcher();
             }
 
-            
-            
+
+
         }
 
         public void SettingsForm()
@@ -154,7 +159,7 @@ namespace NetworkFileUpload
 
             currFiles.Add(CreatedFile);
 
-            UpdateList();
+            UpdateList(CreatedFile.FileName, "Created");
         }
 
         private void OnChanged(object sender, FileSystemEventArgs e)
@@ -162,7 +167,7 @@ namespace NetworkFileUpload
             try
             {
                 // Find the corresponding FileData object
-                var fileData = fileList.FirstOrDefault(f => f.FileName.Equals(e.FullPath, StringComparison.OrdinalIgnoreCase));
+                FileData fileData = currFiles.FirstOrDefault(f => f.FileName.Equals(e.FullPath, StringComparison.OrdinalIgnoreCase));
 
                 if (fileData != null)
                 {
@@ -174,7 +179,11 @@ namespace NetworkFileUpload
                 }
                 else
                 {
-                    Console.WriteLine($"File changed but not tracked: {e.FullPath}");
+                    FileData newFile = new FileData(e.FullPath, GetFileHash(e.FullPath));
+
+                    currFiles.Add(newFile);
+
+                    Console.WriteLine($"File changed added to list: {e.FullPath}");
                 }
             }
             catch (Exception ex)
@@ -193,22 +202,16 @@ namespace NetworkFileUpload
 
         }
 
-        private void UpdateList()
+        private void UpdateList(string fileName, string type)
         {
-
-        }
-    }
-
-    class FileData
-    {
-        public string FileName { get; set; }
-        public byte[] Hash { get; set; }
-
-        public FileData(string fileName, byte[] hash)
-        {
-            FileName = fileName;
-            Hash = hash;
+            // Refresh child form if open
+            childfrm?.RefreshFileList(fileList);
         }
 
     }
+
+    
 }
+
+    
+
